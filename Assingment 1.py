@@ -42,13 +42,10 @@ print("Cube Inner Diagonal Calculator")
 print("This program calculates the inner diagonal (body diagonal) of a cube based on its edge length.")
 
 # Get edge length from user
-try:
-    edge_length = float(input("Enter the edge length of the cube: "))
-    # Calculate the diagonal
-    diagonal = round(edge_length * math.sqrt(3), 2)
-    print("A cube with an edge length of", edge_length, "has an inner diagonal of", diagonal)
-except ValueError:
-    print("Invalid input! Please enter a numerical value.")
+edge_length = float(input("Enter the edge length of the cube: "))
+# Calculate the diagonal
+diagonal = round(edge_length * math.sqrt(3), 2)
+print("A cube with an edge length of", edge_length, "has an inner diagonal of", diagonal)
 
 """
 Part 3
