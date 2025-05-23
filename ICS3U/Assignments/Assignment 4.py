@@ -1,6 +1,7 @@
 """
-Author         : Rashad Mussa
+Author         : Ali Ali
 Course code    : ICS3U
+Student Number : 1005772
 Revision date  : May 19, 2025
 Program        : Wordle Database Search
 Description    : A program that reads from a Wordle solution file and allows the user to 

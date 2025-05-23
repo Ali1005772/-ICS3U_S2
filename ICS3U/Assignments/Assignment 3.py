@@ -1,6 +1,7 @@
 """
 Author         : Ali Ali
-Student Number : 762918
+Student Number : 1005772
+
 Revision Date  : 23 April 2025
 Course Code    : ICS3U
 Program        : Palindrome Checker
