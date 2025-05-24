@@ -1,121 +1,98 @@
 """
-Author         : Ali Ali
-Course code    : ICS3U
-Student Number : 1005772
-Revision date  : May 19, 2025
-Program        : Wordle Database Search
-Description    : A program that reads from a Wordle solution file and allows the user to 
-                 search for a Wordle solution by date or find the date on which a 
-                 specific word appeared.
+Author: Ali Ali
+Course: ICS3U
+Student ID: 1005772
+Last Modified: May 19, 2025
+Program: Wordle Lookup Tool
+Description: A tool to search Wordle solutions by word or by date.
 
-
-VARIABLE DICTIONARY
-
-Variable Name   Type     Purpose
--------------   ----     --------------------------------------------------------------
-month           str      Stores 3-letter abbreviation of the month (e.g., "Jul")
-months          dict     Maps month abbreviations to 2-digit numeric strings
-mon_num         str      Stores 2-digit number of the month (e.g., "07" for July)
-day             str      Day of the month (2 digits, e.g., "09")
-year            str      4-digit year (e.g., "2021")
-date_int        int      Merged date as an integer in format YYYYMMDD (e.g., 20210709)
-dates           list     List of all dates in integer format (parallel to words)
-words           list     List of all Wordle words (uppercase, parallel to dates)
-file            file     File object used to read from wordle.dat
-line            str      A single line from the file
-parts           list     List of 4 elements split from a line: [month, day, year, word]
-word            str      A Wordle word (uppercase version)
-search_word     str      Word entered by user for searching
-result          int      Date result from searching by word; 0 if not found
-search_date     int      Integer date entered by user to find a word
-choice          str      User's choice: 'w' to search by word or 'd' to search by date
+VARIABLE DICTIONARY:
+month_input      (str) : Month abbreviation entered by user (e.g., "Feb")
+month_map        (dict): Maps month names to 2-digit numbers
+day_input        (str) : Day entered by user
+year_input       (str) : Year entered by user
+numeric_date     (int) : Combined date in YYYYMMDD format
+dates_list       (list): Dates from file in numeric format
+words_list       (list): Wordle words from file
+line_text        (str) : Current line being read from file
+line_parts       (list): Components of a line split into [month, day, year, word]
+search_term      (str) : Word entered for search
+matched_date     (int) : Date on which a word appeared (0 if not found)
+option           (str) : User's search mode: 'w' or 'd'
 """
 
-# Converts a 3-letter month abbreviation into a 2-digit number string
-def month_to_number(month):
-    months = {
+def month_to_number(mon):
+    month_map = {
         "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
         "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
         "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"
     }
-    return months.get(month, "00")  # Returns "00" if the month is invalid
+    return month_map.get(mon, "00")
 
-# Combines day, month, and year into an integer in the format YYYYMMDD
-def merge(day, mon, year):
-    mon_num = month_to_number(mon)        # Convert month to numeric form (e.g., "Jul" → "07")
-    return int(year + mon_num + day)      # Combine year, month, and day into an integer
+def build_date(day, mon, year):
+    return int(year + month_to_number(mon) + day)
 
-# Loads data from the file and stores dates and words in separate arrays
-def load_data(filepath):
-    dates = []                            # List to store date values (as integers)
-    words = []                            # List to store corresponding Wordle words
-    file = open(filepath, 'r')            # Open the data file for reading
-    for line in file:                     # Read each line from the file
-        parts = line.strip().split()      # Remove whitespace and split the line into parts
-        if len(parts) == 4:               # Check if the line has exactly 4 elements
-            mon = parts[0]                # Month (e.g., "Jul")
-            day = parts[1]                # Day (e.g., "09")
-            year = parts[2]               # Year (e.g., "2021")
-            word = parts[3]               # The Wordle word for that date
-            date_int = merge(day, mon, year)  # Convert date to integer format
-            dates.append(date_int)        # Add the date to the list
-            words.append(word.upper())    # Add the word (in uppercase) to the list
-    file.close()                          # Close the file
-    return dates, words                   # Return both lists
+def load_file_data(path):
+    dates_list = []
+    words_list = []
+    file = open(path, "r")
+    for line_text in file:
+        line_parts = line_text.strip().split()
+        if len(line_parts) == 4:
+            mon = line_parts[0]
+            day = line_parts[1]
+            year = line_parts[2]
+            word = line_parts[3]
+            full_date = build_date(day.zfill(2), mon, year)
+            dates_list.append(full_date)
+            words_list.append(word.upper())
+    file.close()
+    return dates_list, words_list
 
-# Searches for a word in the list and returns its associated date if found
-def isMatch(search_word, words, dates):
-    search_word = search_word.upper()     # Convert input word to uppercase
-    for i in range(len(words)):           # Loop through the word list
-        if words[i] == search_word:       # Check if the current word matches the search
-            return dates[i]               # Return the date if found
-    return 0                              # Return 0 if word not found
+def search_by_word(word_input, words_list, dates_list):
+    word_input = word_input.upper()
+    for i in range(len(words_list)):
+        if words_list[i] == word_input:
+            return dates_list[i]
+    return 0
 
-# Searches for the word that appears on a specific date
-def find_word_by_date(search_date, dates, words):
-    for i in range(len(dates)):           # Loop through the date list
-        if dates[i] == search_date:       # Check if the current date matches the search
-            return words[i]               # Return the word if date matches
-    return None                           # Return None if the date is not found
+def search_by_date(target_date, dates_list, words_list):
+    for i in range(len(dates_list)):
+        if dates_list[i] == target_date:
+            return words_list[i]
+    return None
 
-# Main program logic and user interface
 def main():
-    # Load the data file into two lists
-    dates, words = load_data("/workspaces/-ICS3U_S2/Data/wordle.dat")
+    dates_list, words_list = load_file_data("ICS3U/Data/wordle.dat")
 
-    # Welcome message
-    print("Welcome to the Wordle Database!")
+    print("Welcome to the Wordle Lookup Tool")
 
-    # Ask user if they want to search by word or date
-    choice = input("Enter w if you are looking for a word, or d for a word on a certain date: ").lower()
+    option = input("Enter 'w' to search by word or 'd' to search by date: ").lower()
 
-    if choice == 'w':  # If searching by word
-        word = input("What word are you looking for? ")  # Ask for the word
-        result = isMatch(word, words, dates)             # Call isMatch to find the word
-        if result != 0:  # If the word was found
-            print("The word " + word.upper() + " was the solution to the puzzle on " + str(result))
-        else:  # Word not found
-            print(word.upper() + " was not found in the database.")
-
-    elif choice == 'd':  # If searching by date
-        year = input("Enter the year: ")  # Get year from user
-        month = input("Enter the month (3-letter abbreviation, as in 'Jan' for 'January'): ")  # Get month
-        day = input("Enter the day: ")    # Get day from user
-
-        day = day.zfill(2)  # Make sure day is 2 digits (e.g., "1" becomes "01")
-        date = merge(day, month, year)  # Convert input date to integer format
-
-        # Check if the date is within valid Wordle history
-        if date < 20210619:
-            print(str(date) + " is too early. No wordles occurred before 20210619. Enter a later date.")
-        elif date > 20240421:
-            print(str(date) + " is too recent. Our records only go as late as 20240421. Please enter an earlier date.")
+    if option == "w":
+        search_term = input("Enter the word to search: ")
+        matched_date = search_by_word(search_term, words_list, dates_list)
+        if matched_date != 0:
+            print("The word " + search_term.upper() + " appeared on " + str(matched_date) + ".")
         else:
-            word = find_word_by_date(date, dates, words)  # Find the word for that date
-            if word is not None:
-                print("The word entered on " + str(date) + " was " + word + ".")
+            print(search_term.upper() + " is not in the Wordle records.")
+
+    elif option == "d":
+        year_input = input("Enter the year: ")
+        month_input = input("Enter the 3-letter month (e.g., 'Jan'): ").capitalize()
+        day_input = input("Enter the day: ").zfill(2)
+
+        numeric_date = build_date(day_input, month_input, year_input)
+
+        if numeric_date < 20210619:
+            print(str(numeric_date) + " is before Wordle started. Try a later date.")
+        elif numeric_date > 20240421:
+            print(str(numeric_date) + " is beyond the latest available date. Try an earlier one.")
+        else:
+            word_result = search_by_date(numeric_date, dates_list, words_list)
+            if word_result is not None:
+                print("The word for " + str(numeric_date) + " was " + word_result + ".")
             else:
                 print("No word found for that date.")
 
-# Call the main function to run the program
 main()
